@@ -8,14 +8,16 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.commit
 import com.bernardooechsler.activitylifecycleplayground.databinding.ActivityMainBinding
 import java.io.File
 import java.util.Timer
 import kotlin.concurrent.fixedRateTimer
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TestFragment.TestFragmentListener {
 
     private lateinit var binding: ActivityMainBinding
+    private val testFragment = TestFragment()
 
     //    private var isFirstLoad = true
     //    private var numberOfLoads = 0
@@ -30,6 +32,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.buttonExit.setOnClickListener { showDialog() }
         binding.buttonSave.setOnClickListener { saveMessage() }
+        binding.buttonShowFragment.setOnClickListener { showFragment() }
+        binding.buttonRemoveFragment.setOnClickListener { removeFragment() }
 
         onBackPressedDispatcher.addCallback { showDialog() }
 
@@ -48,30 +52,22 @@ class MainActivity : AppCompatActivity() {
 //        Log.d("BernardoOechsler1", "IM in onCreate()")
     }
 
+    private fun showFragment() {
+        supportFragmentManager.commit {
+            add(R.id.fragment_container, testFragment)
+        }
+    }
+
+    private fun removeFragment() {
+        supportFragmentManager.commit {
+            remove(testFragment)
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         val savedTextViewMessage = binding.textViewSavedMessage.text.toString()
         outState.putString("savedMessage", savedTextViewMessage)
-    }
-
-    override fun onStart() {
-        super.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-    }
-
-    override fun onStop() {
-        super.onStop()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     private fun saveMessage() {
@@ -111,6 +107,13 @@ class MainActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
             .show()
+    }
+
+    // Overriding this function from our interface inside TestFragment.kt
+    override fun clearActivityScreen() {
+        binding.editTextMessage.setText("")
+        binding.textViewSavedMessage.text = ""
+        removeFragment()
     }
 
 
